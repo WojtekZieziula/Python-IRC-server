@@ -130,11 +130,41 @@ Testy będą uruchamiane automatycznie przy użyciu `pytest`.
 
 ## 8. Podział prac w zespole
 
-//TODO
+* **Hubert Potera:**
+    * Konfiguracja projektu (`pyproject.toml`, `Makefile`, `Docker`).
+    * Implementacja warstwy sieciowej (pętla `asyncio`, obsługa gniazd TCP).
+    * Obsługa sygnałów systemowych (`SIGINT`, `SIGTERM`) i logowanie zdarzeń.
+* **Kacper Siemionek:**
+    * Opracowanie parsera wiadomości IRC.
+    * Implementacja komend związanych z rejestracją (`PASS`, `NICK`, `USER`, `QUIT`).
+    * Zarządzanie listą aktywnych użytkowników (`UserManager`).
+* **Wojciech Zieziula:**
+    * Implementacja logiki kanałów i przesyłania wiadomości (`PRIVMSG`, `JOIN`, `PART`, `KICK`).
+    * Zarządzanie stanem kanałów (`ChannelManager`).
+    * Przygotowanie testów integracyjnych w `pytest`.
 
 ## 9. Harmonogram prac (Plan tygodniowy)
 
-//TODO
+* **Tydzień 1 (do 20.12):**
+    * Konfiguracja repozytorium, linterów (`ruff`) i typowania (`mypy`).
+    * Uruchomienie prototypu serwera (echo server) w `asyncio`.
+* **Tydzień 2 (do 28.12):**
+    * Implementacja parsera protokołu.
+    * Obsługa procesu rejestracji użytkownika i weryfikacji unikalności nicku.
+* **Tydzień 3 (do 04.01):**
+    * Implementacja wymiany wiadomości prywatnych (`PRIVMSG`).
+    * Podstawowa obsługa kanałów (`JOIN`).
+    * Przygotowanie środowiska do demonstracji.
+* **Tydzień 4 (fo 11.01):**
+    * **Odbiór częściowy (10.01).**
+    * Implementacja opuszczania kanałów (`PART`) i obsługi wielu kanałów jednocześnie.
+* **Tydzień 5 (do 18.01):**
+    * Implementacja komendy `KICK` i weryfikacji uprawnień operatora.
+    * Rozbudowa testów integracyjnych.
+* **Tydzień 6 (do 23.01):**
+    * Finalne testy i poprawki błędów.
+    * Przygotowanie dokumentacji końcowej.
+    * **Prezentacja projektu (23.01).**
 
 ## 10. Funkcje do odbioru częściowego
 
