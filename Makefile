@@ -1,21 +1,15 @@
-PYTHON = python3.11
-VENV = .venv
-BIN = $(VENV)/bin
-
 install:
-	$(PYTHON) -m venv $(VENV)
-	$(BIN)/pip install --upgrade pip
-	$(BIN)/pip install -e .[dev]
+	uv sync
 
 format:
-	$(BIN)/ruff format src
+	uv run ruff format src
 
 lint:
-	$(BIN)/ruff check src
-	$(BIN)/mypy src
+	uv run ruff check src
+	uv run mypy src
 
 run:
-	$(PYTHON) -m src.main --config config.yaml
+	uv run python -m src.main --config config.yaml
 
 clean:
-	rm -rf $(VENV) .mypy_cache .ruff_cache __pycache__ src/__pycache__
+	rm -rf .venv .mypy_cache .ruff_cache __pycache__ src/__pycache__
