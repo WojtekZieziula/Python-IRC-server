@@ -1,0 +1,5 @@
+.mypy_cache
+.ruff_cache
+.venv
+
+src/pyirc_server.egg-info
