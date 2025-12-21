@@ -10,7 +10,7 @@ class UserManager:
         if cls._instance is None:
             cls._instance = super(UserManager, cls).__new__(cls)
             cls._instance.users = {}
-            cls._instance.logger = logging.getLogger("UserManager")
+            cls._instance.logger = logging.getLogger(cls.__name__)
         return cls._instance
 
     def __init__(self) -> None:
@@ -28,3 +28,9 @@ class UserManager:
 
     def is_nick_taken(self, nickname: str) -> bool:
         return nickname in self.users
+
+    def change_nick(self, old_nick: str, new_nick: str) -> None:
+        session = self.users[old_nick]
+        del self.users[old_nick]
+        self.users[new_nick] = session
+        self.logger.info(f"Nick changed: {old_nick} -> {new_nick}")
