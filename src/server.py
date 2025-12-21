@@ -1,7 +1,11 @@
 import asyncio
 import logging
 
+from src.commands import CommandHandler
 from src.config import ServerConfig
+from src.protocol import IRCParser
+from src.session import ClientSession
+from src.user_manager import UserManager
 
 
 class Server:
@@ -9,6 +13,8 @@ class Server:
         self.config = config
         self.server: asyncio.Server | None = None
         self.logger = logging.getLogger(self.__class__.__name__)
+
+        self.command_handler = CommandHandler(self.config)
 
     async def start(self) -> None:
         self.server = await asyncio.start_server(
@@ -32,8 +38,8 @@ class Server:
     async def handle_client(
         self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter
     ) -> None:
-        addr = writer.get_extra_info("peername")
-        self.logger.info(f"Connected from {addr}")
+        session = ClientSession(reader, writer)
+        self.logger.info(f"Connected from {session.host}")
 
         try:
             while True:
@@ -41,18 +47,26 @@ class Server:
                 if not data:
                     break
 
-                message = data.decode().strip()
-                self.logger.info(f"[{addr}] {message}")
+                decoded_data = data.decode("utf-8", errors="ignore")
 
-                # Echo
-                writer.write(data)
-                await writer.drain()
+                for line in decoded_data.split("\r\n"):
+                    if not line.strip():
+                        continue
+
+                    try:
+                        self.logger.debug(f"Received: {line}")
+                        message = IRCParser.parse(line)
+                        await self.command_handler.handle(session, message)
+                    except ValueError:
+                        pass
+                    except Exception as e:
+                        self.logger.error(f"Command processing error: {e}")
+
         except Exception as e:
-            self.logger.error(f"Client error {addr}: {e}")
+            self.logger.error(f"Client error {session.host}: {e}")
         finally:
-            self.logger.info(f"Disconnected {addr}")
-            try:
-                writer.close()
-                await writer.wait_closed()
-            except Exception:
-                pass
+            self.logger.info(f"Disconnected {session.host}")
+            if session.nickname:
+                UserManager().remove_user(session.nickname)
+
+            await session.quit()
