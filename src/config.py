@@ -9,6 +9,7 @@ import yaml
 class ServerConfig:
     host: str
     port: int
+    password: str
 
 
 @dataclass
@@ -31,7 +32,11 @@ def load_config(config_path: str) -> AppConfig:
     try:
         server_data = data["server"]
         return AppConfig(
-            server=ServerConfig(host=server_data["host"], port=server_data["port"]),
+            server=ServerConfig(
+                host=server_data["host"],
+                port=server_data["port"],
+                password=server_data["password"],
+            ),
             log_level=data["logging"]["level"],
         )
     except KeyError as e:
