@@ -15,6 +15,9 @@ class ClientSession:
         self.realname: str | None = None
         self.is_registered: bool = False
 
+        self.password_attempt: str | None = None
+        self.closed: bool = False
+
         self.logger = logging.getLogger(f"Session({self.host}:{self.port})")
 
     async def send_reply(self, *args: str) -> None:
@@ -30,6 +33,11 @@ class ClientSession:
         await self.send_reply(code, *args)
 
     async def quit(self) -> None:
+        if self.closed:
+            return
+
+        self.closed = True
+
         self.logger.info("Closing connection")
         try:
             self.writer.close()
