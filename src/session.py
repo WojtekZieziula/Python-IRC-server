@@ -3,9 +3,11 @@ import logging
 
 
 class ClientSession:
-    def __init__(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+    def __init__(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter, server_name: str):
         self.reader = reader
         self.writer = writer
+        self.server_name = server_name
+
         addr = writer.get_extra_info("peername")
         self.host = addr[0] if addr else "unknown"
         self.port = addr[1] if addr else 0
@@ -21,6 +23,10 @@ class ClientSession:
         self.logger = logging.getLogger(f"Session({self.host}:{self.port})")
 
     async def send_reply(self, *args: str) -> None:
+        if self.closed:
+            self.logger.debug("Attempted to send message to a closed session. Ignoring.")
+            return
+
         response = " ".join(args) + "\r\n"
         try:
             self.writer.write(response.encode("utf-8"))
@@ -30,7 +36,12 @@ class ClientSession:
             self.logger.error(f"Send error: {e}")
 
     async def send_error(self, code: str, *args: str) -> None:
-        await self.send_reply(code, *args)
+        target_nick = self.nickname if self.nickname else "*"
+        server_prefix = f":{self.server_name}"
+        params_str = " ".join(args)
+        full_msg = f"{server_prefix} {code} {target_nick} {params_str}".strip()
+
+        await self.send_reply(full_msg)
 
     async def quit(self) -> None:
         if self.closed:
