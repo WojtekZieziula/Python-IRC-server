@@ -2,8 +2,6 @@ import pytest
 from unittest.mock import MagicMock
 from src.user_manager import UserManager
 
-# co jezeli dodamy 2 razy ten sam nick
-
 
 @pytest.fixture
 def user_manager():
