@@ -1,7 +1,8 @@
 server:
+  name: "pyirc.local"
   host: "127.0.0.1"
   port: 6667
-  password:
+  password: "test"
 
 logging:
   level: "INFO"
