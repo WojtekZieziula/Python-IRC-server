@@ -3,3 +3,4 @@
 .venv
 
 src/pyirc_server.egg-info
+__pycache__
