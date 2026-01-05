@@ -13,6 +13,23 @@ def mock_session():
     session.send_reply = AsyncMock()
     return session
 
+def test_channel_validation_logic():
+    assert Channel.is_valid_name("#polska") is True
+    assert Channel.is_valid_name("#channel123") is True
+
+    assert Channel.is_valid_name("without_hash") is False
+    assert Channel.is_valid_name("#with space") is False
+    assert Channel.is_valid_name("#with,comma") is False
+    assert Channel.is_valid_name("#toolong" + "a"*50) is False
+    assert Channel.is_valid_name("#double#hash") is False
+
+def test_channel_creation_fails_on_invalid_name():
+    with pytest.raises(ValueError, match="Invalid channel name"):
+        Channel("#invalid,name")
+
+    with pytest.raises(ValueError):
+        Channel("no_hash")
+
 def test_channel_initialization(channel):
     assert channel.name == "#test"
     assert isinstance(channel.members, set)
