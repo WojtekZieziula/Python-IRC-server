@@ -7,6 +7,9 @@ if TYPE_CHECKING:
 
 class Channel:
     def __init__(self, name: str) -> None:
+        if not self.is_valid_name(name):
+            raise ValueError(f"Invalid channel name: {name}")
+
         self.name: str = name
         self.members: set[ClientSession] = set()
         self.logger: logging.Logger = logging.getLogger(f"Channel:{name}")
@@ -23,3 +26,20 @@ class Channel:
         for member in self.members:
             if member != skip_user:
                 await member.send_reply(message)
+
+    @staticmethod
+    def is_valid_name(name: str) -> bool:
+        if not name or len(name) > 50:
+            return False
+
+        if not name.startswith("#"):
+            return False
+
+        forbidden = {" ", ",", "\x07"}
+        if any(char in forbidden for char in name):
+            return False
+
+        if "#" in name[1:]:
+            return False
+
+        return True
