@@ -7,6 +7,7 @@ import yaml
 
 @dataclass
 class ServerConfig:
+    name: str
     host: str
     port: int
     password: str
@@ -33,6 +34,7 @@ def load_config(config_path: str) -> AppConfig:
         server_data = data["server"]
         return AppConfig(
             server=ServerConfig(
+                name=server_data["name"],
                 host=server_data["host"],
                 port=server_data["port"],
                 password=server_data["password"],
