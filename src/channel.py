@@ -1,9 +1,11 @@
 from __future__ import annotations
+
 import logging
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.session import ClientSession
+
 
 class Channel:
     def __init__(self, name: str) -> None:
@@ -22,14 +24,16 @@ class Channel:
         self.members.discard(session)
         self.logger.info(f"User {session.nickname} left {self.name}")
 
-    async def broadcast(self, message: str, skip_user: ClientSession | None = None) -> None:
+    async def broadcast(
+        self, message: str, skip_user: ClientSession | None = None
+    ) -> None:
         for member in self.members:
             if member != skip_user:
                 await member.send_reply(message)
 
     @staticmethod
     def is_valid_name(name: str) -> bool:
-        if not name or len(name) > 50:
+        if not name or len(name) > 200:
             return False
 
         if not name.startswith("#"):
