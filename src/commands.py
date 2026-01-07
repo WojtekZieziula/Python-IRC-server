@@ -1,10 +1,10 @@
 import logging
 
+from src.channel_manager import ChannelManager
 from src.config import ServerConfig
 from src.protocol import IRCMessage
 from src.session import ClientSession
 from src.user_manager import UserManager
-from src.channel_manager import ChannelManager
 
 
 class CommandHandler:
@@ -86,23 +86,40 @@ class CommandHandler:
         await self.check_registration(session)
 
     async def handle_join(self, session: ClientSession, msg: IRCMessage) -> None:
+        if not session.is_registered:
+            await session.send_error("451", ":You have not registered")
+            return
+
         if not msg.params:
             await session.send_error("461", "JOIN", ":Not enough parameters")
             return
 
+        # This if is for type narrowing only (due to mypy errors)
+        if session.nickname is None or session.username is None:
+            return
+
         channel_name = msg.params[0]
+
         try:
             channel = self.channel_manager.get_or_create_channel(channel_name)
             channel.add_user(session)
 
-            join_msg = f":{session.nickname}!{session.username}@{session.host} JOIN {channel.name}"
+            join_msg = (
+                f":{session.nickname}!{session.username}@{session.host} "
+                f"JOIN {channel.name}"
+            )
             await channel.broadcast(join_msg)
 
             nicks = " ".join([m.nickname for m in channel.members if m.nickname])
-            await session.send_reply("353", session.nickname, "=", channel.name, f":{nicks}")
-            await session.send_reply("366", session.nickname, channel.name, ":End of /NAMES list")
 
-        except ValueError as e:
+            await session.send_reply(
+                "353", session.nickname, "=", channel.name, f":{nicks}"
+            )
+            await session.send_reply(
+                "366", session.nickname, channel.name, ":End of /NAMES list"
+            )
+
+        except ValueError:
             await session.send_error("403", channel_name, ":No such channel")
 
     async def handle_part(self, session: ClientSession, msg: IRCMessage) -> None:
@@ -139,13 +156,18 @@ class CommandHandler:
                 if session not in channel.members:
                     await session.send_error("404", target, ":Cannot send to channel")
                     return
-                await channel.broadcast(f":{session.nickname} PRIVMSG {target} :{content}", skip_user=session)
+                await channel.broadcast(
+                    f":{session.nickname} PRIVMSG {target} :{content}",
+                    skip_user=session,
+                )
             else:
                 await session.send_error("401", target, ":No such nick/channel")
         else:
             target_user = self.user_manager.get_session(target)
             if target_user:
-                await target_user.send_reply(f":{session.nickname} PRIVMSG {target} :{content}")
+                await target_user.send_reply(
+                    f":{session.nickname} PRIVMSG {target} :{content}"
+                )
             else:
                 await session.send_error("401", target, ":No such nick/channel")
 
