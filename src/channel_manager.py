@@ -1,10 +1,13 @@
 from __future__ import annotations
+
 import logging
 from typing import TYPE_CHECKING
+
 from src.channel import Channel
 
 if TYPE_CHECKING:
     from src.session import ClientSession
+
 
 class ChannelManager:
     _instance: ChannelManager | None = None
@@ -35,7 +38,9 @@ class ChannelManager:
         normalized = self._normalize_name(name)
 
         if not Channel.is_valid_name(normalized):
-            self.logger.warning(f"Rejection: normalized name '{normalized}' is still invalid.")
+            self.logger.warning(
+                f"Rejection: normalized name '{normalized}' is still invalid."
+            )
             raise ValueError(f"Invalid channel name: {name}")
 
         if normalized in self.channels:
