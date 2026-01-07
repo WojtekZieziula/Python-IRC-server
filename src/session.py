@@ -3,7 +3,12 @@ import logging
 
 
 class ClientSession:
-    def __init__(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter, server_name: str):
+    def __init__(
+        self,
+        reader: asyncio.StreamReader,
+        writer: asyncio.StreamWriter,
+        server_name: str,
+    ):
         self.reader = reader
         self.writer = writer
         self.server_name = server_name
@@ -24,7 +29,9 @@ class ClientSession:
 
     async def send_reply(self, *args: str) -> None:
         if self.closed:
-            self.logger.debug("Attempted to send message to a closed session. Ignoring.")
+            self.logger.debug(
+                "Attempted to send message to a closed session. Ignoring."
+            )
             return
 
         response = " ".join(args) + "\r\n"
