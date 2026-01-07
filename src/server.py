@@ -1,6 +1,7 @@
 import asyncio
 import logging
 
+from src.channel_manager import ChannelManager
 from src.commands import CommandHandler
 from src.config import ServerConfig
 from src.protocol import IRCParser
@@ -38,7 +39,7 @@ class Server:
     async def handle_client(
         self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter
     ) -> None:
-        session = ClientSession(reader, writer)
+        session = ClientSession(reader, writer, self.config.name)
         self.logger.info(f"Connected from {session.host}")
 
         try:
@@ -68,5 +69,6 @@ class Server:
             self.logger.info(f"Disconnected {session.host}")
             if session.nickname:
                 UserManager().remove_user(session.nickname)
+                ChannelManager().remove_user_from_all_channels(session)
 
             await session.quit()
