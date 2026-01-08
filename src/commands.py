@@ -177,21 +177,30 @@ class CommandHandler:
         await session.quit()
 
     async def check_registration(self, session: ClientSession) -> None:
-        if session.nickname and session.username and not session.is_registered:
-            if self.config.password:
-                if session.password_attempt != self.config.password:
-                    self.logger.warning(f"Bad password from {session.host}")
-                    await session.send_error("464", ":Password incorrect")
-                    await session.quit()
-                    return
+        if not (session.nickname and session.username and not session.is_registered):
+            return
+
+        if self.config.password:
+            if session.password_attempt != self.config.password:
+                self.logger.warning(f"Bad password from {session.host}")
+                await session.send_error("464", ":Password incorrect")
+                await session.quit()
+                return
+
+        try:
+            self.user_manager.add_user(session.nickname, session)
 
             session.is_registered = True
-            self.user_manager.add_user(session.nickname, session)
 
             await session.send_reply(
                 "001",
                 session.nickname,
-                f":Welcome to the IRC Server {session.nickname}!"
-                f"{session.username}@{session.host}",
+                f":Welcome to the IRC Server {session.nickname}! {session.username}@{session.host}",
             )
             self.logger.info(f"Registered: {session.nickname}")
+
+        except ValueError:
+            self.logger.warning(f"Registration failed: Nick {session.nickname} taken")
+            await session.send_error("433", "*", session.nickname, ":Nickname is already in use")
+
+            session.nickname = None
