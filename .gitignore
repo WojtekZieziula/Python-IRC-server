@@ -5,4 +5,4 @@
 src/pyirc_server.egg-info
 __pycache__
 venv
-
+uv.lock
