@@ -1,21 +1,27 @@
+from unittest.mock import ANY, AsyncMock, MagicMock
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock, ANY
-from src.commands import CommandHandler
-from src.protocol import IRCMessage
-from src.config import ServerConfig
-from src.user_manager import UserManager
+
 from src.channel_manager import ChannelManager
+from src.commands import CommandHandler
+from src.config import ServerConfig
+from src.protocol import IRCMessage
+from src.user_manager import UserManager
+
 
 @pytest.fixture
-def command_handler():
+def command_handler() -> CommandHandler:
     UserManager().users = {}
     ChannelManager().channels = {}
 
-    config = ServerConfig(name="test.server", host="127.0.0.1", port=6667, password="password")
+    config = ServerConfig(
+        name="test.server", host="127.0.0.1", port=6667, password="password"
+    )
     return CommandHandler(config)
 
+
 @pytest.fixture
-def registered_session():
+def registered_session() -> MagicMock:
     session = MagicMock()
     session.nickname = "Michal"
     session.username = "michal"
@@ -26,8 +32,9 @@ def registered_session():
     session.quit = AsyncMock()
     return session
 
+
 @pytest.mark.asyncio
-async def test_registration_fail_bad_password(command_handler):
+async def test_registration_fail_bad_password(command_handler: CommandHandler) -> None:
     session = MagicMock()
     session.nickname = "Michal"
     session.username = "michal"
@@ -41,8 +48,11 @@ async def test_registration_fail_bad_password(command_handler):
     session.send_error.assert_called_with("464", ":Password incorrect")
     session.quit.assert_called_once()
 
+
 @pytest.mark.asyncio
-async def test_nick_change_when_taken(command_handler, registered_session):
+async def test_nick_change_when_taken(
+    command_handler: CommandHandler, registered_session: MagicMock
+) -> None:
     UserManager().add_user("Hubert", MagicMock())
 
     msg = IRCMessage("NICK", ["Hubert"])
@@ -50,15 +60,21 @@ async def test_nick_change_when_taken(command_handler, registered_session):
 
     registered_session.send_error.assert_called_with("433", "*", "Hubert", ANY)
 
+
 @pytest.mark.asyncio
-async def test_privmsg_no_such_nick(command_handler, registered_session):
+async def test_privmsg_no_such_nick(
+    command_handler: CommandHandler, registered_session: MagicMock
+) -> None:
     msg = IRCMessage("PRIVMSG", ["DoesNotExist", "Hi!"])
     await command_handler.handle(registered_session, msg)
 
     registered_session.send_error.assert_called_with("401", "DoesNotExist", ANY)
 
+
 @pytest.mark.asyncio
-async def test_privmsg_to_channel_not_joined(command_handler, registered_session):
+async def test_privmsg_to_channel_not_joined(
+    command_handler: CommandHandler, registered_session: MagicMock
+) -> None:
     ChannelManager().get_or_create_channel("#polska")
 
     msg = IRCMessage("PRIVMSG", ["#polska", "Siema!"])
@@ -66,15 +82,21 @@ async def test_privmsg_to_channel_not_joined(command_handler, registered_session
 
     registered_session.send_error.assert_called_with("404", "#polska", ANY)
 
+
 @pytest.mark.asyncio
-async def test_join_invalid_channel_name(command_handler, registered_session):
+async def test_join_invalid_channel_name(
+    command_handler: CommandHandler, registered_session: MagicMock
+) -> None:
     msg = IRCMessage("JOIN", ["#invalid channel"])
     await command_handler.handle(registered_session, msg)
 
     registered_session.send_error.assert_called_with("403", "#invalid channel", ANY)
 
+
 @pytest.mark.asyncio
-async def test_part_not_on_channel(command_handler, registered_session):
+async def test_part_not_on_channel(
+    command_handler: CommandHandler, registered_session: MagicMock
+) -> None:
     ChannelManager().get_or_create_channel("#test")
 
     msg = IRCMessage("PART", ["#test"])
@@ -82,8 +104,11 @@ async def test_part_not_on_channel(command_handler, registered_session):
 
     registered_session.send_error.assert_called_with("442", "#test", ANY)
 
+
 @pytest.mark.asyncio
-async def test_privmsg_broadcast_to_channel_members(command_handler, registered_session):
+async def test_privmsg_broadcast_to_channel_members(
+    command_handler: CommandHandler, registered_session: MagicMock
+) -> None:
     channel_name = "#test"
     channel = command_handler.channel_manager.get_or_create_channel(channel_name)
 
@@ -100,8 +125,11 @@ async def test_privmsg_broadcast_to_channel_members(command_handler, registered_
     hubert_session.send_reply.assert_called_with(":Michal PRIVMSG #test :Hello!")
     registered_session.send_reply.assert_not_called()
 
+
 @pytest.mark.asyncio
-async def test_join_lists_all_current_members(command_handler, registered_session):
+async def test_join_lists_all_current_members(
+    command_handler: CommandHandler, registered_session: MagicMock
+) -> None:
     channel_name = "#PSI"
     channel = command_handler.channel_manager.get_or_create_channel(channel_name)
 
@@ -121,8 +149,11 @@ async def test_join_lists_all_current_members(command_handler, registered_sessio
     assert "Michal" in nicks_string
     assert "Hubert" in nicks_string
 
+
 @pytest.mark.asyncio
-async def test_not_enough_parameters_error(command_handler, registered_session):
+async def test_not_enough_parameters_error(
+    command_handler: CommandHandler, registered_session: MagicMock
+) -> None:
     msg = IRCMessage("JOIN", [])
     await command_handler.handle(registered_session, msg)
 
