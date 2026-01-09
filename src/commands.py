@@ -195,12 +195,15 @@ class CommandHandler:
             await session.send_reply(
                 "001",
                 session.nickname,
-                f":Welcome to the IRC Server {session.nickname}! {session.username}@{session.host}",
+                f":Welcome to the IRC Server {session.nickname}!"
+                f"{session.username}@{session.host}",
             )
             self.logger.info(f"Registered: {session.nickname}")
 
         except ValueError:
             self.logger.warning(f"Registration failed: Nick {session.nickname} taken")
-            await session.send_error("433", "*", session.nickname, ":Nickname is already in use")
+            await session.send_error(
+                "433", "*", session.nickname, ":Nickname is already in use"
+            )
 
             session.nickname = None
