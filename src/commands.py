@@ -192,13 +192,17 @@ class CommandHandler:
             return
 
         if not channel.is_operator(session):
-            await session.send_error("482", channel_name, ":You're not channel operator")
+            await session.send_error(
+                "482", channel_name, ":You're not channel operator"
+            )
             return
 
         target_session = self.user_manager.get_session(target_nick)
-        
+
         if not target_session or target_session not in channel.members:
-            await session.send_error("441", target_nick, channel_name, ":They aren't on that channel")
+            await session.send_error(
+                "441", target_nick, channel_name, ":They aren't on that channel"
+            )
             return
 
         kick_msg = f":{session.nickname} KICK {channel.name} {target_nick} :{reason}"
@@ -229,12 +233,15 @@ class CommandHandler:
             await session.send_reply(
                 "001",
                 session.nickname,
-                f":Welcome to the IRC Server {session.nickname}! {session.username}@{session.host}",
+                f":Welcome to the IRC Server {session.nickname}! \
+                {session.username}@{session.host}",
             )
             self.logger.info(f"Registered: {session.nickname}")
 
         except ValueError:
             self.logger.warning(f"Registration failed: Nick {session.nickname} taken")
-            await session.send_error("433", "*", session.nickname, ":Nickname is already in use")
+            await session.send_error(
+                "433", "*", session.nickname, ":Nickname is already in use"
+            )
 
             session.nickname = None

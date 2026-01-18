@@ -167,7 +167,7 @@ async def test_kick_success_as_operator(
     channel_name = "#test"
     channel = command_handler.channel_manager.get_or_create_channel(channel_name)
     channel.add_user(registered_session)
-    
+
     victim_session = MagicMock()
     victim_session.nickname = "Victim"
     victim_session.send_reply = AsyncMock()
@@ -178,7 +178,7 @@ async def test_kick_success_as_operator(
     await command_handler.handle(registered_session, msg)
 
     assert victim_session not in channel.members
-    
+
     expected_msg = f":Michal KICK {channel_name} Victim :Misbehaving"
     victim_session.send_reply.assert_called_with(expected_msg)
     registered_session.send_reply.assert_called_with(expected_msg)
@@ -190,7 +190,7 @@ async def test_kick_fail_no_privileges(
 ) -> None:
     channel_name = "#test"
     channel = command_handler.channel_manager.get_or_create_channel(channel_name)
-    
+
     op_session = MagicMock()
     op_session.nickname = "Admin"
     channel.add_user(op_session)
@@ -204,7 +204,7 @@ async def test_kick_fail_no_privileges(
     await command_handler.handle(registered_session, msg)
 
     registered_session.send_error.assert_called_with("482", channel_name, ANY)
-    
+
     assert op_session in channel.members
 
 
@@ -219,7 +219,7 @@ async def test_kick_fail_user_not_in_channel(
 
     random_user = MagicMock()
     command_handler.user_manager.users["random"] = random_user
-    
+
     msg = IRCMessage("KICK", [channel_name, "Random"])
     await command_handler.handle(registered_session, msg)
 

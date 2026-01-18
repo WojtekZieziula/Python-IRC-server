@@ -23,7 +23,7 @@ async def test_server_cleanup_on_disconnect(server_config: ServerConfig) -> None
 
     mock_reader = AsyncMock(spec=asyncio.StreamReader)
     mock_writer = MagicMock(spec=asyncio.StreamWriter)
-    
+
     mock_reader.readline.return_value = b""
 
     nickname = "TestUser"

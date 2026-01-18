@@ -22,7 +22,7 @@ class Channel:
         if not self.members:
             self.operators.add(session)
             self.logger.info(f"User {session.nickname} became operator of {self.name}")
-        
+
         self.members[session] = None
         self.logger.info(f"User {session.nickname} joined {self.name}")
 
@@ -33,9 +33,12 @@ class Channel:
 
         if self.members and not self.operators:
             new_op = next(iter(self.members))
-            
+
             self.operators.add(new_op)
-            self.logger.info(f"User {new_op.nickname} (oldest member) automatically became operator of {self.name}")
+            self.logger.info(
+                f"User {new_op.nickname} (oldest member) automatically \
+                became operator of {self.name}"
+            )
 
     def is_operator(self, session: ClientSession) -> bool:
         return session in self.operators
