@@ -158,3 +158,69 @@ async def test_not_enough_parameters_error(
     await command_handler.handle(registered_session, msg)
 
     registered_session.send_error.assert_called_with("461", "JOIN", ANY)
+
+
+@pytest.mark.asyncio
+async def test_kick_success_as_operator(
+    command_handler: CommandHandler, registered_session: MagicMock
+) -> None:
+    channel_name = "#test"
+    channel = command_handler.channel_manager.get_or_create_channel(channel_name)
+    channel.add_user(registered_session)
+    
+    victim_session = MagicMock()
+    victim_session.nickname = "Victim"
+    victim_session.send_reply = AsyncMock()
+    command_handler.user_manager.users["victim"] = victim_session
+    channel.add_user(victim_session)
+
+    msg = IRCMessage("KICK", [channel_name, "Victim", "Misbehaving"])
+    await command_handler.handle(registered_session, msg)
+
+    assert victim_session not in channel.members
+    
+    expected_msg = f":Michal KICK {channel_name} Victim :Misbehaving"
+    victim_session.send_reply.assert_called_with(expected_msg)
+    registered_session.send_reply.assert_called_with(expected_msg)
+
+
+@pytest.mark.asyncio
+async def test_kick_fail_no_privileges(
+    command_handler: CommandHandler, registered_session: MagicMock
+) -> None:
+    channel_name = "#test"
+    channel = command_handler.channel_manager.get_or_create_channel(channel_name)
+    
+    op_session = MagicMock()
+    op_session.nickname = "Admin"
+    channel.add_user(op_session)
+    channel.operators.add(op_session)
+
+    channel.add_user(registered_session)
+    if registered_session in channel.operators:
+        channel.operators.remove(registered_session)
+
+    msg = IRCMessage("KICK", [channel_name, "Admin"])
+    await command_handler.handle(registered_session, msg)
+
+    registered_session.send_error.assert_called_with("482", channel_name, ANY)
+    
+    assert op_session in channel.members
+
+
+@pytest.mark.asyncio
+async def test_kick_fail_user_not_in_channel(
+    command_handler: CommandHandler, registered_session: MagicMock
+) -> None:
+    channel_name = "#test"
+    channel = command_handler.channel_manager.get_or_create_channel(channel_name)
+    channel.add_user(registered_session)
+    channel.operators.add(registered_session)
+
+    random_user = MagicMock()
+    command_handler.user_manager.users["random"] = random_user
+    
+    msg = IRCMessage("KICK", [channel_name, "Random"])
+    await command_handler.handle(registered_session, msg)
+
+    registered_session.send_error.assert_called_with("441", "Random", channel_name, ANY)
