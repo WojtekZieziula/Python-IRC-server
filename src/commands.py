@@ -24,6 +24,7 @@ class CommandHandler:
             "JOIN": self.handle_join,
             "PRIVMSG": self.handle_privmsg,
             "PART": self.handle_part,
+            "KICK": self.handle_kick,
         }
 
         handler = handlers.get(command)
@@ -170,6 +171,39 @@ class CommandHandler:
                 )
             else:
                 await session.send_error("401", target, ":No such nick/channel")
+
+    async def handle_kick(self, session: ClientSession, msg: IRCMessage) -> None:
+        if len(msg.params) < 2:
+            await session.send_error("461", "KICK", ":Not enough parameters")
+            return
+
+        channel_name = msg.params[0]
+        target_nick = msg.params[1]
+        reason = msg.params[2] if len(msg.params) > 2 else target_nick
+
+        channel = self.channel_manager.get_channel(channel_name)
+
+        if not channel:
+            await session.send_error("403", channel_name, ":No such channel")
+            return
+
+        if session not in channel.members:
+            await session.send_error("442", channel_name, ":You're not on that channel")
+            return
+
+        if not channel.is_operator(session):
+            await session.send_error("482", channel_name, ":You're not channel operator")
+            return
+
+        target_session = self.user_manager.get_session(target_nick)
+        
+        if not target_session or target_session not in channel.members:
+            await session.send_error("441", target_nick, channel_name, ":They aren't on that channel")
+            return
+
+        kick_msg = f":{session.nickname} KICK {channel.name} {target_nick} :{reason}"
+        await channel.broadcast(kick_msg)
+        channel.remove_user(target_session)
 
     async def handle_quit(self, session: ClientSession, msg: IRCMessage) -> None:
         reason = msg.params[0] if msg.params else "Client Quit"
