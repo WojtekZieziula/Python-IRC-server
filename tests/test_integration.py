@@ -53,9 +53,7 @@ class IRCClient:
         self.writer: asyncio.StreamWriter | None = None
 
     async def connect(self) -> None:
-        self.reader, self.writer = await asyncio.open_connection(
-            "127.0.0.1", self.port
-        )
+        self.reader, self.writer = await asyncio.open_connection("127.0.0.1", self.port)
 
         self.writer.write(b"PASS password\r\n")
         self.writer.write(f"NICK {self.nick}\r\n".encode())
@@ -85,9 +83,7 @@ class IRCClient:
                 raise ConnectionResetError("Reader is not initialized")
 
             try:
-                line = await asyncio.wait_for(
-                    self.reader.readline(), timeout=time_left
-                )
+                line = await asyncio.wait_for(self.reader.readline(), timeout=time_left)
 
                 if not line:
                     raise ConnectionResetError(
