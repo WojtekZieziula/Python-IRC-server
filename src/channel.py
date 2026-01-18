@@ -13,16 +13,32 @@ class Channel:
             raise ValueError(f"Invalid channel name: {name}")
 
         self.name: str = name
-        self.members: set[ClientSession] = set()
+        # Hack for ordered set
+        self.members: dict[ClientSession, None] = {}
+        self.operators: set[ClientSession] = set()
         self.logger: logging.Logger = logging.getLogger(f"Channel:{name}")
 
     def add_user(self, session: ClientSession) -> None:
-        self.members.add(session)
+        if not self.members:
+            self.operators.add(session)
+            self.logger.info(f"User {session.nickname} became operator of {self.name}")
+        
+        self.members[session] = None
         self.logger.info(f"User {session.nickname} joined {self.name}")
 
     def remove_user(self, session: ClientSession) -> None:
-        self.members.discard(session)
+        self.members.pop(session, None)
+        self.operators.discard(session)
         self.logger.info(f"User {session.nickname} left {self.name}")
+
+        if self.members and not self.operators:
+            new_op = next(iter(self.members))
+            
+            self.operators.add(new_op)
+            self.logger.info(f"User {new_op.nickname} (oldest member) automatically became operator of {self.name}")
+
+    def is_operator(self, session: ClientSession) -> bool:
+        return session in self.operators
 
     async def broadcast(
         self, message: str, skip_user: ClientSession | None = None
