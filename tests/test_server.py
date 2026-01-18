@@ -16,12 +16,15 @@ def server_config() -> ServerConfig:
 
 @pytest.mark.asyncio
 async def test_server_cleanup_on_disconnect(server_config: ServerConfig) -> None:
-    """Testuje, czy serwer poprawnie sprząta po rozłączeniu klienta."""
+    UserManager().users.clear()
+    ChannelManager().channels.clear()
+
     server = Server(server_config)
 
     mock_reader = AsyncMock(spec=asyncio.StreamReader)
     mock_writer = MagicMock(spec=asyncio.StreamWriter)
-    mock_reader.read.return_value = b""
+    
+    mock_reader.readline.return_value = b""
 
     nickname = "TestUser"
     user_manager = UserManager()

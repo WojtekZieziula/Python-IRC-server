@@ -39,7 +39,7 @@ def test_channel_creation_fails_on_invalid_name() -> None:
 
 def test_channel_initialization(channel: Channel) -> None:
     assert channel.name == "#test"
-    assert isinstance(channel.members, set)
+    assert isinstance(channel.members, dict)
     assert len(channel.members) == 0
 
 
