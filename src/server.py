@@ -44,24 +44,22 @@ class Server:
 
         try:
             while True:
-                data = await reader.read(1024)
+                data = await reader.readline()
                 if not data:
                     break
 
-                decoded_data = data.decode("utf-8", errors="ignore")
+                line = data.decode("utf-8", errors="ignore").strip()
+                if not line:
+                    continue
 
-                for line in decoded_data.split("\r\n"):
-                    if not line.strip():
-                        continue
-
-                    try:
-                        self.logger.debug(f"Received: {line}")
-                        message = IRCParser.parse(line)
-                        await self.command_handler.handle(session, message)
-                    except ValueError:
-                        pass
-                    except Exception as e:
-                        self.logger.error(f"Command processing error: {e}")
+                try:
+                    self.logger.debug(f"Received: {line}")
+                    message = IRCParser.parse(line)
+                    await self.command_handler.handle(session, message)
+                except ValueError:
+                    pass
+                except Exception as e:
+                    self.logger.error(f"Command processing error: {e}")
 
         except Exception as e:
             self.logger.error(f"Client error {session.host}: {e}")
