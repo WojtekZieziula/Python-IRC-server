@@ -117,7 +117,7 @@ async def test_session_send_reply_network_error(
     error_msg = "Lost Connection"
     mock_writer.write.side_effect = ConnectionResetError(error_msg)
 
-    await session.send_reply("PING :test")
+    await session.send_reply("asdasdasdasd")
 
     assert len(caplog.records) > 0
 
