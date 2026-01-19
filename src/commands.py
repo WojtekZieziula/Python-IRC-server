@@ -114,10 +114,19 @@ class CommandHandler:
             nicks = " ".join([m.nickname for m in channel.members if m.nickname])
 
             await session.send_reply(
-                "353", session.nickname, "=", channel.name, f":{nicks}"
+                f":{session.server_name}",
+                "353",
+                session.nickname,
+                "=",
+                channel.name,
+                f":{nicks}",
             )
             await session.send_reply(
-                "366", session.nickname, channel.name, ":End of /NAMES list"
+                f":{session.server_name}",
+                "366",
+                session.nickname,
+                channel.name,
+                ":End of /NAMES list",
             )
 
         except ValueError:
@@ -231,6 +240,7 @@ class CommandHandler:
             session.is_registered = True
 
             await session.send_reply(
+                f":{session.server_name}",
                 "001",
                 session.nickname,
                 f":Welcome to the IRC Server {session.nickname}!"
