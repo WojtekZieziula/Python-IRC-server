@@ -71,9 +71,9 @@ async def tests_session_send_reply_success(
     mock_writer.get_extra_info.return_value = ("10.0.0.1", 6668)
     session = ClientSession(mock_reader, mock_writer, server_name)
 
-    await session.send_reply("PING :test")
+    await session.send_reply("asdasdasdasd")
 
-    mock_writer.write.assert_called_once_with(b"PING :test\r\n")
+    mock_writer.write.assert_called_once_with(b"asdasdasdasd\r\n")
     mock_writer.drain.assert_awaited_once()
 
 

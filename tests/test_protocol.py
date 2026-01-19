@@ -4,9 +4,9 @@ from src.protocol import IRCParser
 
 
 def test_parse_simple_command() -> None:
-    msg = IRCParser.parse("PING")
-    assert msg.command == "PING"
-    assert msg.params == []
+    msg = IRCParser.parse("NICK skuter")
+    assert msg.command == "NICK"
+    assert msg.params == ["skuter"]
     assert msg.prefix is None
 
 
