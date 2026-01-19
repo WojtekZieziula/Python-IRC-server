@@ -1,6 +1,7 @@
 import asyncio
 import sys
 
+
 class IRCClient:
     def __init__(self, port: int, nick: str) -> None:
         self.port = port

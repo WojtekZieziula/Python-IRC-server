@@ -1,6 +1,6 @@
 import pytest
-
 from IRCClient import IRCClient
+
 from src.channel_manager import ChannelManager
 from src.user_manager import UserManager
 

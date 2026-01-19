@@ -1,11 +1,11 @@
-import pytest
 import asyncio
 
+import pytest
 from IRCClient import IRCClient
 
 
 @pytest.mark.asyncio
-async def test_invalid_data_and_long_line(running_server: int) -> None:
+async def test_invalid_data_and_long_message(running_server: int) -> None:
     port = running_server
     client = IRCClient(port, "Ziutek")
     try:
@@ -18,6 +18,7 @@ async def test_invalid_data_and_long_line(running_server: int) -> None:
         assert "NICK" in response
     finally:
         await client.close()
+
 
 @pytest.mark.asyncio
 async def test_abrupt_client_disconnect(running_server: int) -> None:

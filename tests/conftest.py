@@ -1,8 +1,11 @@
 import asyncio
-import pytest
 from collections.abc import AsyncGenerator
+
+import pytest
+
 from src.config import ServerConfig
 from src.server import Server
+
 
 @pytest.fixture
 def server_config() -> ServerConfig:
@@ -12,6 +15,7 @@ def server_config() -> ServerConfig:
         port=0,
         password="password",
     )
+
 
 @pytest.fixture
 async def running_server(server_config: ServerConfig) -> AsyncGenerator[int, None]:
