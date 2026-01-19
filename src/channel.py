@@ -36,8 +36,8 @@ class Channel:
 
             self.operators.add(new_op)
             self.logger.info(
-                f"User {new_op.nickname} (oldest member) automatically \
-                became operator of {self.name}"
+                f"User {new_op.nickname} (oldest member) automatically"
+                f" became operator of {self.name}"
             )
 
     def is_operator(self, session: ClientSession) -> bool:

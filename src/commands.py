@@ -233,8 +233,8 @@ class CommandHandler:
             await session.send_reply(
                 "001",
                 session.nickname,
-                f":Welcome to the IRC Server {session.nickname}! \
-                {session.username}@{session.host}",
+                f":Welcome to the IRC Server {session.nickname}!"
+                f" {session.username}@{session.host}",
             )
             self.logger.info(f"Registered: {session.nickname}")
 
