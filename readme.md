@@ -82,7 +82,7 @@ System będzie przygotowany na następujące błędy:
 Rozwiązanie oparte jest na pętli zdarzeń (Event Loop).
 
 **Główne moduły:**
-* **TCPListener:** Akceptuje połączenia i tworzy nowe instancje *ClientSession*.
+* **Server:** Akceptuje połączenia i tworzy nowe instancje *ClientSession*.
 * **ClientSession:** Zarządza gniazdem sieciowym danego klienta, odbiera i wysyła jego komunikaty.
 * **Parser:** Analizuje surowe ciągi znaków i zamienia je na komedy.
 * **CommandHandler:** Logika biznesowa mapująca komendy na akcje.
@@ -94,7 +94,7 @@ graph LR
     Client((IRC Client))
 
     subgraph "PyIRC_Server"
-        Listener[TCPListener]
+        Listener[Server]
         Session[ClientSession]
         Parser[Parser]
         Handler[CommandHandler]
