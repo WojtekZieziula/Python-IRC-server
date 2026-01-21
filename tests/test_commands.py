@@ -143,7 +143,9 @@ async def test_join_lists_all_current_members(
 
     called_args = [call.args for call in registered_session.send_reply.call_args_list]
 
-    names_list_call = next(args for args in called_args if len(args) > 1 and args[1] == "353")
+    names_list_call = next(
+        args for args in called_args if len(args) > 1 and args[1] == "353"
+    )
     nicks_string = names_list_call[-1]
 
     assert "Michal" in nicks_string
