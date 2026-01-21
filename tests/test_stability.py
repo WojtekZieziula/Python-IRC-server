@@ -1,7 +1,7 @@
 import asyncio
 
 import pytest
-from IRCClient import IRCClient
+from ircclient import IRCClient
 
 
 @pytest.mark.asyncio
