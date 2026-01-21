@@ -1,4 +1,4 @@
-.PHONY: install format lint test run docker-build docker-up clean
+.PHONY: install format lint test coverage run docker-build docker-up clean
 
 install:
 	uv sync
@@ -14,6 +14,7 @@ lint:
 
 test:
 	uv run pytest -v
+	uv run pytest --cov=src
 
 run:
 	uv run python -m src.main --config config.yaml
